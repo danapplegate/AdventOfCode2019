@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import sys
 import numpy
 import argparse
 from typing import TextIO, List, Tuple
+
+numpy.set_printoptions(threshold=sys.maxsize)
 
 parser = argparse.ArgumentParser(
     description="Solve the AdventOfCode2019 Crossed Wires problem"
@@ -43,53 +46,58 @@ def get_dimensions(*paths: List[str]) -> (int, int, int, int):
 
 def plot_paths(grid, origin: Tuple[int], *paths: List[str]) -> List[Tuple[int]]:
     start_x, start_y = origin
-    grid[start_y][start_x] = -(len(paths) + 1)
     x = start_x
     y = start_y
-    path_id_shift = 0
-    intersections = []
+    path_id = 0
+    distances = []
     for path in paths:
-        path_id = 1 << path_id_shift
-        path_id_shift += 1
+        steps = 0
         for seg in path:
             length = int(seg[1:])
             if seg[0] == "R":
-                for offset in range(length):
-                    grid[start_y][x] |= path_id
-                    if grid[start_y][x] == 3:
-                        intersections.append((x, start_y))
+                for _ in range(length):
+                    if grid[path_id][start_y][x] == 0:
+                        grid[path_id][start_y][x] = steps
+                    if path_id == 1 and grid[0][start_y][x] != 0:
+                        distances.append(steps + grid[0][start_y][x])
                     x += 1
+                    steps += 1
             elif seg[0] == "L":
-                for offset in range(length):
-                    grid[start_y][x] |= path_id
-                    if grid[start_y][x] == 3:
-                        intersections.append((x, start_y))
+                for _ in range(length):
+                    if grid[path_id][start_y][x] == 0:
+                        grid[path_id][start_y][x] = steps
+                    if path_id == 1 and grid[0][start_y][x] != 0:
+                        distances.append(steps + grid[0][start_y][x])
                     x -= 1
+                    steps += 1
             # Y axis is reversed in matrix
             elif seg[0] == "U":
-                for offset in range(length):
-                    grid[y][start_x] |= path_id
-                    if grid[y][start_x] == 3:
-                        intersections.append((start_x, y))
+                for _ in range(length):
+                    if grid[path_id][y][start_x] == 0:
+                        grid[path_id][y][start_x] = steps
+                    if path_id == 1 and grid[0][y][start_x] != 0:
+                        distances.append(steps + grid[0][y][start_x])
                     y -= 1
+                    steps += 1
             elif seg[0] == "D":
-                for offset in range(length):
-                    grid[y][start_x] |= path_id
-                    if grid[y][start_x] == 3:
-                        intersections.append((start_x, y))
+                for _ in range(length):
+                    if grid[path_id][y][start_x] == 0:
+                        grid[path_id][y][start_x] = steps
+                    if path_id == 1 and grid[0][y][start_x] != 0:
+                        distances.append(steps + grid[0][y][start_x])
                     y += 1
+                    steps += 1
             start_x = x
             start_y = y
         # Need to mark the final position, since we don't mark the start
-        grid[y][x] |= path_id
+        grid[path_id][y][x] = steps
+        if path_id == 1 and grid[0][y][x] != 0:
+            distances.append(steps + grid[0][y][x])
         start_x, start_y = origin
         x = start_x
         y = start_y
-    return intersections
-
-
-def manhattan_distance(point: Tuple[int], origin: Tuple[int]) -> int:
-    return abs(origin[0] - point[0]) + abs(origin[1] - point[1])
+        path_id += 1
+    return distances
 
 
 args = parser.parse_args()
@@ -100,12 +108,10 @@ width, height, origin_x, origin_y = get_dimensions(path1, path2)
 origin = (origin_x, origin_y)
 print(f"W: {width}, H: {height}, OX: {origin_x}, OY: {origin_y}")
 
-grid = numpy.zeros((height, width), dtype=numpy.int8)
-intersections = plot_paths(grid, origin, path1, path2)
-print(path1, path2)
+grid = numpy.zeros((2, height, width), dtype=numpy.int64)
+distances = plot_paths(grid, origin, path1, path2)
 # print(grid)
+# print(path1, path2)
 print(f"Origin: {origin}")
-print(intersections)
-distances = [manhattan_distance(point, origin) for point in intersections]
-print(distances)
-print(f"Closest intersection distance: {min(distances)}")
+# print(distances)
+print(f"Closest step distance: {min(distances)}")
