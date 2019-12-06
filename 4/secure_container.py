@@ -7,18 +7,18 @@ range_end = 691423
 def test(number: int) -> bool:
     n = str(number)
     d = n[0]
-    repeated = False
+    occurrences = dict()
     for digit in n[1:]:
         if digit < d:
             return False
         if d == digit:
-            repeated = True
+            occurrences[digit] = occurrences.get(digit, 1) + 1
         d = digit
-    return repeated
+    return any([x == 2 for x in occurrences.values()])
 
 
 num_found = 0
-for n in range(range_start, range_end + 1):
+for n in range(range_start, range_end):
     if test(n):
         num_found += 1
 
