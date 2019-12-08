@@ -15,17 +15,29 @@ if __name__ == "__main__":
     print(f"Width: {width!r}, Height: {height!r}")
 
     data = args.filename.readline().strip()
-    print(data)
 
     layer_size = width * height
     layers = []
     position = 0
     while position < len(data):
-        layers.append(data[position:position+layer_size])
+        layer_data = data[position:position+layer_size]
+        layer = []
+        row_num = 0
+        for _ in range(height):
+            layer.append(layer_data[row_num*width:(row_num+1)*width])
+            row_num += 1        
+        layers.append(layer)
         position += layer_size
 
-    print(layers)
-    zero_counts = [layer.count('0') for layer in layers]
-    final_layer = layers[zero_counts.index(min(zero_counts))]
-    answer = final_layer.count('1') * final_layer.count('2')
-    print(f"Anser: {answer}")
+    flattened_img = []
+    for i in range(height):
+        row = ''
+        for j in range(width):
+            for layer in layers:
+                if layer[i][j] != "2":
+                    row += layer[i][j]
+                    break
+        flattened_img.append(row)
+
+    for row in flattened_img:
+        print(row)
