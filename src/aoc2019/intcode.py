@@ -20,7 +20,7 @@ class Program:
 
     p: List[int]
 
-    def __init__(self, filename: str = "./input.txt"):
+    def __init__(self, filename: str):
         with open(filename) as f:
             self.p = [int(n) for n in f.readline().split(",")]
 
