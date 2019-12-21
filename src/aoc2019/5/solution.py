@@ -1,11 +1,7 @@
 #!/usr/env/bin python3
 from os import path
-from ..intcode import Program
+from ..intcode import Program, local_resolver
 import sys
-
-
-def localresolver(filename: str) -> str:
-    return path.abspath(path.join(path.dirname(__file__), filename))
 
 
 if __name__ == "__main__":
@@ -15,7 +11,7 @@ if __name__ == "__main__":
         description="Solves the Sunny With a Chance of Asteroids problem"
     )
     parser.add_argument(
-        "-f", "--filename", type=localresolver, default="input.txt", required=False
+        "-f", "--filename", type=local_resolver(__file__), default="input.txt", required=False
     )
 
     args = parser.parse_args()

@@ -1,10 +1,15 @@
 from typing import List
+from os import path
 
 
 def is_position_mode(parameter_num: int, parameter_modes: str) -> bool:
     return (
         len(parameter_modes) < parameter_num or parameter_modes[-parameter_num] == "0"
     )
+
+
+def local_resolver(currentfile):
+    return lambda filename: path.abspath(path.join(path.dirname(currentfile), filename))
 
 
 def process(mem: List[int], pos: int) -> bool:
